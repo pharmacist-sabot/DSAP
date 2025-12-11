@@ -1,5 +1,4 @@
-// src/router/index.ts
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, RouterView } from 'vue-router';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,10 +10,30 @@ const router = createRouter({
       meta: { layout: 'default' },
     },
     {
-      path: '/:pathMatch(.*)*',
-      name: 'not-found',
-      component: () => import('@/views/NotFoundView.vue'),
-      meta: { layout: 'blank' },
+      path: '/assess',
+      component: RouterView,
+      meta: { layout: 'assessment' },
+      children: [
+        {
+          path: '',
+          redirect: '/assess/info',
+        },
+        {
+          path: 'info',
+          name: 'hospital-info',
+          component: () => import('@/views/assessment/HospitalInfoView.vue'),
+        },
+        {
+          path: 'standard/:id',
+          name: 'assessment-standard',
+          component: () => import('@/views/assessment/StandardView.vue'),
+        },
+        {
+          path: 'summary',
+          name: 'assessment-summary',
+          component: () => import('@/views/assessment/SummaryView.vue'),
+        },
+      ],
     },
   ],
 });

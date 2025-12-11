@@ -1,4 +1,3 @@
-<!-- src/components/common/BaseButton.vue -->
 <script setup lang="ts">
 type Props = {
   variant?: 'primary' | 'secondary' | 'danger';
