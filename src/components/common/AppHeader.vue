@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Github } from 'lucide-vue-next';
 import { RouterLink } from 'vue-router';
 </script>
 
@@ -18,8 +19,9 @@ import { RouterLink } from 'vue-router';
         <a
           href="https://github.com/pharmacist-sabot/DSAP" target="_blank"
           class="hover:text-gray-900 transition-colors"
+          aria-label="GitHub"
         >
-          GitHub
+          <Github class="w-5 h-5" :stroke-width="1.5" />
         </a>
       </nav>
     </div>
