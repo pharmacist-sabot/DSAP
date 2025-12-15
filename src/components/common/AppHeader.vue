@@ -17,8 +17,7 @@ import { RouterLink } from 'vue-router';
           Home
         </RouterLink>
         <a
-          href="https://github.com/pharmacist-sabot/DSAP" target="_blank"
-          class="hover:text-gray-900 transition-colors"
+          href="https://github.com/pharmacist-sabot/DSAP" target="_blank" class="hover:text-gray-900 transition-colors"
           aria-label="GitHub"
         >
           <Github class="w-5 h-5" :stroke-width="1.5" />
