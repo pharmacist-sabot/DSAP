@@ -53,7 +53,7 @@ src/
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
 - **State Management:** [Pinia](https://pinia.vuejs.org/)
 - **Utilities:** [VueUse](https://vueuse.org/) (for `useStorage`)
-- **Linting:** ESLint (Antfu Config)
+- **Linting:** Biome (Strict Mode)
 
 ---
 
@@ -86,7 +86,10 @@ The application will be available at `http://localhost:5173/`.
 ### Linting & Formatting
 
 ```bash
-# Fix linting issues automatically
+# Check linting & formatting (Biome, strict mode)
+bun lint
+
+# Fix linting & formatting issues automatically
 bun lint:fix
 ```
 

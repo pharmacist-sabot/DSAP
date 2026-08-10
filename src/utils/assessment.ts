@@ -1,25 +1,32 @@
 import type { AssessmentState, Dimension, HospitalInfo, Standard } from '@/types/models';
 
-export const dimensionMeta: Record<Dimension, {
-  label: string;
-  shortLabel: string;
-  description: string;
-}> = {
+export const dimensionMeta: Record<
+  Dimension,
+  {
+    label: string;
+    shortLabel: string;
+    description: string;
+  }
+> = {
+  // biome-ignore lint/style/useNamingConvention: property name must match the Dimension type value
   Management: {
     label: 'ด้านการบริหาร',
     shortLabel: 'Management',
     description: 'นโยบาย โครงสร้างพื้นฐาน ข้อมูล และการพัฒนาศักยภาพบุคลากร',
   },
+  // biome-ignore lint/style/useNamingConvention: property name must match the Dimension type value
   Service: {
     label: 'ด้านการบริการและบริบาล',
     shortLabel: 'Service',
     description: 'กระบวนการดูแลผู้ป่วย การสั่งใช้ จ่าย และติดตามความปลอดภัยด้านยา',
   },
+  // biome-ignore lint/style/useNamingConvention: property name must match the Dimension type value
   System: {
     label: 'ด้านการจัดการระบบยา',
     shortLabel: 'System',
     description: 'ระบบสนับสนุนที่ทำให้การประเมินเกิดขึ้นต่อเนื่องและตรวจสอบได้',
   },
+  // biome-ignore lint/style/useNamingConvention: property name must match the Dimension type value
   SupplyChain: {
     label: 'ด้านการบริหารยาและเวชภัณฑ์',
     shortLabel: 'Supply Chain',
@@ -37,15 +44,7 @@ export const regionOptions = [
   'ภาคใต้',
 ] as const;
 
-export const hospitalSizeOptions = [
-  'A',
-  'S',
-  'M1',
-  'M2',
-  'F1',
-  'F2',
-  'F3',
-] as const;
+export const hospitalSizeOptions = ['A', 'S', 'M1', 'M2', 'F1', 'F2', 'F3'] as const;
 
 export function createInitialHospitalInfo(): HospitalInfo {
   return {
@@ -92,8 +91,9 @@ export function getTotalCriteria(standard: Standard): number {
 }
 
 export function formatThaiDate(date: string): string {
-  if (!date)
+  if (!date) {
     return '-';
+  }
 
   return new Intl.DateTimeFormat('th-TH', {
     dateStyle: 'medium',
@@ -114,6 +114,8 @@ export function countFilledHospitalFields(info: HospitalInfo): number {
     info.stats.ipdPatientDays,
   ];
 
-  return textFields.filter(value => value.trim().length > 0).length
-    + numberFields.filter(value => value > 0).length;
+  return (
+    textFields.filter((value) => value.trim().length > 0).length +
+    numberFields.filter((value) => value > 0).length
+  );
 }

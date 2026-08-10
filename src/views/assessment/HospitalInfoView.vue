@@ -3,11 +3,9 @@ import { ArrowRight, Building2, ClipboardList, Hospital, Users } from '@lucide/v
 import { storeToRefs } from 'pinia';
 import { computed, reactive, watch } from 'vue';
 import { RouterLink } from 'vue-router';
-
-import type { HospitalInfo } from '@/types/models';
-
 import BaseButton from '@/components/common/BaseButton.vue';
 import { useAssessmentStore } from '@/stores/assessment';
+import type { HospitalInfo } from '@/types/models';
 import {
   cloneHospitalInfo,
   countFilledHospitalFields,

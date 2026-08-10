@@ -31,7 +31,7 @@ const totalCriteriaCount = computed(() =>
 );
 
 const dimensionCards = computed(() =>
-  (Object.entries(dimensionMeta) as Array<[keyof typeof dimensionMeta, (typeof dimensionMeta)[keyof typeof dimensionMeta]]>).map(([dimension, meta]) => ({
+  (Object.entries(dimensionMeta) as [keyof typeof dimensionMeta, (typeof dimensionMeta)[keyof typeof dimensionMeta]][]).map(([dimension, meta]) => ({
     ...meta,
     count: standards.value.filter(standard => standard.dimension === dimension).length,
   })),

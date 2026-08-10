@@ -1,103 +1,108 @@
 import { useStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
-
+import { type ComputedRef, computed, type Ref, ref } from 'vue';
+import rawStandards from '@/data/standards.json' with { type: 'json' };
 import type { AssessmentState, HospitalInfo, Standard } from '@/types/models';
-
-import rawStandards from '@/data/standards.json';
 import { createInitialAssessmentState } from '@/utils/assessment';
 
-export const useAssessmentStore = defineStore('assessment', () => {
-  // --- 1. Master Data (Reference) ---
-  // โหลดข้อมูลเกณฑ์จาก JSON
-  const standards = ref<Standard[]>(rawStandards as Standard[]);
+/**
+ * Calculate the current level achieved for the given standard.
+ * Logic: Level N is achieved only when all criteria of Level N are met,
+ * and Level N-1 must be achieved first (waterfall logic).
+ */
+function calculateAchievedLevel(standard: Standard, checkedCriteria: string[]): number {
+  let achievedLevel = 0;
 
-  // --- 2. State (User Data) ---
-  // ใช้ useStorage เพื่อ Auto-save ลง LocalStorage
-  const assessmentState = useStorage<AssessmentState>('dsap-assessment-v1', createInitialAssessmentState());
+  // Loop through each level (1 -> 5), skipping Level 0
+  for (const lvl of standard.levels.filter((level) => level.level !== 0)) {
+    const allCriteriaIds = lvl.criteria.map((c) => c.id);
+    const isLevelComplete = allCriteriaIds.every((id) => checkedCriteria.includes(id));
 
-  // --- 3. Getters (Computed) ---
+    if (isLevelComplete) {
+      achievedLevel = lvl.level;
+    } else {
+      // Stop immediately if this level is not met (no skipping levels)
+      break;
+    }
+  }
 
-  /**
-   * คำนวณ Level ปัจจุบันของหมวดที่ระบุ
-   * Logic: จะได้ Level N ก็ต่อเมื่อผ่าน Criteria ทั้งหมดของ Level N
-   * และต้องผ่าน Level N-1 มาก่อนด้วย (Waterfall logic)
-   */
-  const getStandardLevel = computed(() => (standardId: number) => {
-    // ต้องเช็คก่อนว่ามีข้อมูล progress หรือไม่ กัน error
-    if (!assessmentState.value.progress || !assessmentState.value.progress[standardId]) {
+  return achievedLevel;
+}
+
+function createGetStandardLevel(
+  state: Ref<AssessmentState>,
+  standards: Ref<Standard[]>,
+): ComputedRef<(standardId: number) => number> {
+  return computed(() => (standardId: number) => {
+    const progress = state.value.progress?.[standardId];
+    const standard = standards.value.find((s) => s.id === standardId);
+
+    if (!(progress && standard)) {
       return 0;
     }
 
-    const progress = assessmentState.value.progress[standardId];
-    const standard = standards.value.find(s => s.id === standardId);
-
-    if (!progress || !standard)
-      return 0;
-
-    let achievedLevel = 0;
-
-    // วนลูปตรวจสอบทีละ Level (1 -> 5)
-    for (const lvl of standard.levels) {
-      if (lvl.level === 0)
-        continue; // ข้าม Level 0
-
-      // หา Criteria ทั้งหมดใน Level นี้
-      const allCriteriaIds = lvl.criteria.map(c => c.id);
-
-      // เช็คว่า user ติ๊กครบทุกข้อใน Level นี้ไหม?
-      const isLevelComplete = allCriteriaIds.every(id =>
-        progress.checkedCriteria.includes(id),
-      );
-
-      if (isLevelComplete) {
-        achievedLevel = lvl.level;
-      }
-      else {
-        // ถ้าไม่ผ่าน Level นี้ ให้หยุดคำนวณทันที (ไม่ให้ข้ามขั้น)
-        break;
-      }
-    }
-
-    return achievedLevel;
+    return calculateAchievedLevel(standard, progress.checkedCriteria);
   });
+}
 
-  // --- 4. Actions ---
+// Create an empty progress object for all 15 standards if missing
+function ensureProgressInitialized(state: Ref<AssessmentState>, standards: Ref<Standard[]>) {
+  for (const std of standards.value) {
+    if (!state.value.progress[std.id]) {
+      state.value.progress[std.id] = {
+        currentLevel: 0,
+        checkedCriteria: [],
+        notes: '',
+      };
+    }
+  }
+}
 
+function applyCriterionToggle(
+  state: Ref<AssessmentState>,
+  getStandardLevel: ComputedRef<(standardId: number) => number>,
+  standardId: number,
+  criterionId: string,
+) {
+  const progress = state.value.progress[standardId];
+  if (!progress) {
+    return;
+  }
+
+  const index = progress.checkedCriteria.indexOf(criterionId);
+  if (index === -1) {
+    // Add
+    progress.checkedCriteria.push(criterionId);
+  } else {
+    // Remove
+    progress.checkedCriteria.splice(index, 1);
+  }
+
+  // Update timestamp
+  state.value.lastUpdated = new Date().toISOString();
+
+  // currentLevel is recomputed automatically via the getter in the UI
+  progress.currentLevel = getStandardLevel.value(standardId);
+}
+
+export const useAssessmentStore = defineStore('assessment', () => {
+  // State (master data + user data, auto-saved via useStorage)
+  const standards = ref<Standard[]>(rawStandards as Standard[]);
+  const assessmentState = useStorage<AssessmentState>(
+    'dsap-assessment-v1',
+    createInitialAssessmentState(),
+  );
+
+  // Getter: waterfall level calculation
+  const getStandardLevel = createGetStandardLevel(assessmentState, standards);
+
+  // Actions
   function initialize() {
-    // สร้าง Progress Object ว่างๆ สำหรับทั้ง 15 หมวด ถ้ายังไม่มี
-    standards.value.forEach((std) => {
-      if (!assessmentState.value.progress[std.id]) {
-        assessmentState.value.progress[std.id] = {
-          currentLevel: 0,
-          checkedCriteria: [],
-          notes: '',
-        };
-      }
-    });
+    ensureProgressInitialized(assessmentState, standards);
   }
 
   function toggleCriterion(standardId: number, criterionId: string) {
-    const progress = assessmentState.value.progress[standardId];
-    if (!progress)
-      return;
-
-    const index = progress.checkedCriteria.indexOf(criterionId);
-    if (index === -1) {
-      // Add
-      progress.checkedCriteria.push(criterionId);
-    }
-    else {
-      // Remove
-      progress.checkedCriteria.splice(index, 1);
-    }
-
-    // Update timestamp
-    assessmentState.value.lastUpdated = new Date().toISOString();
-
-    // หมายเหตุ: currentLevel จะถูกคำนวณใหม่ผ่าน Getter อัตโนมัติในฝั่ง UI
-    // แต่ถ้าต้องการเก็บค่า Level ล่าสุดลง State ด้วย ให้ทำตรงนี้
-    progress.currentLevel = getStandardLevel.value(standardId);
+    applyCriterionToggle(assessmentState, getStandardLevel, standardId, criterionId);
   }
 
   function updateHospitalInfo(info: Partial<HospitalInfo>) {
@@ -108,26 +113,20 @@ export const useAssessmentStore = defineStore('assessment', () => {
     assessmentState.value.lastUpdated = new Date().toISOString();
   }
 
-  // [Fix] ประกาศ Function นี้ให้ถูกต้อง ก่อนส่งออก
   function resetAssessment() {
     assessmentState.value = createInitialAssessmentState();
     initialize();
   }
 
-  // เรียกใช้ครั้งแรกเพื่อเตรียมข้อมูล
+  // Initialize data on first load
   initialize();
 
   return {
-    // State
     standards,
     assessmentState,
-
-    // Getters
     getStandardLevel,
-
-    // Actions
     toggleCriterion,
     updateHospitalInfo,
-    resetAssessment, // ส่งออก function ที่ประกาศไว้ข้างบน
+    resetAssessment,
   };
 });

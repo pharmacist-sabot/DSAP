@@ -1,10 +1,10 @@
 <script setup lang="ts">
-type Props = {
+interface Props {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   type?: 'button' | 'submit' | 'reset';
   block?: boolean;
-};
+}
 
 withDefaults(defineProps<Props>(), {
   variant: 'primary',

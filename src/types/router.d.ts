@@ -1,7 +1,7 @@
 import 'vue-router';
 
 declare module 'vue-router' {
-  export type RouteMeta = {
+  export interface RouteMeta {
     layout?: 'default' | 'blank' | 'assessment';
-  };
+  }
 }

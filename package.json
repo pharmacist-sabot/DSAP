@@ -8,8 +8,8 @@
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
-    "lint": "eslint . --ignore-pattern \"**/*.md\" --ignore-pattern \"docs/**\"",
-    "lint:fix": "eslint . --ignore-pattern \"**/*.md\" --ignore-pattern \"docs/**\" --fix",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "audit": "audit-ci --high",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage"
@@ -23,7 +23,7 @@
     "vue-router": "^5.1.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^9.0.0",
+    "@biomejs/biome": "^2.5.7",
     "@tailwindcss/vite": "^4.3.0",
     "@types/node": "^26.0.0",
     "@vitejs/plugin-vue": "^6.0.7",
@@ -31,8 +31,6 @@
     "@vue/test-utils": "^2.4.11",
     "@vue/tsconfig": "^0.9.1",
     "audit-ci": "^7.1.0",
-    "eslint": "^10.4.1",
-    "eslint-plugin-format": "^2.0.1",
     "jsdom": "^29.1.1",
     "tailwindcss": "^4.3.0",
     "typescript": "~6.0.3",

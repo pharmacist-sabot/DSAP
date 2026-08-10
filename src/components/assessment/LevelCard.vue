@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-
-import type { EvaluationCriterion } from '@/types/models';
-
 import BaseCheckbox from '@/components/common/BaseCheckbox.vue';
+import type { EvaluationCriterion } from '@/types/models';
 
 const props = defineProps<{
   level: number;
@@ -13,17 +11,16 @@ const props = defineProps<{
   isPassed: boolean;
 }>();
 
-const emit = defineEmits<{
-  (e: 'toggle', id: string): void;
-}>();
+const emit = defineEmits<(e: 'toggle', id: string) => void>();
 
 const completedCriteriaCount = computed(() =>
   props.criteria.filter(item => props.checkedCriteria.includes(item.id)).length,
 );
 
 const progressWidth = computed(() => {
-  if (props.criteria.length === 0)
+  if (props.criteria.length === 0) {
     return 100;
+  }
 
   return Math.round((completedCriteriaCount.value / props.criteria.length) * 100);
 });

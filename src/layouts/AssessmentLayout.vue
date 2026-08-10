@@ -18,7 +18,7 @@ function getLevel(stdId: number) {
 }
 
 const groupedStandards = computed(() =>
-  (Object.entries(dimensionMeta) as Array<[keyof typeof dimensionMeta, (typeof dimensionMeta)[keyof typeof dimensionMeta]]>).map(([dimension, meta]) => ({
+  (Object.entries(dimensionMeta) as [keyof typeof dimensionMeta, (typeof dimensionMeta)[keyof typeof dimensionMeta]][]).map(([dimension, meta]) => ({
     dimension,
     ...meta,
     items: standards.value.filter(standard => standard.dimension === dimension),
@@ -47,7 +47,7 @@ const navigationOptions = computed(() => [
 ]);
 
 function navigateFromSelect(event: Event) {
-  const target = event.target;
+  const { target } = event;
 
   if (target instanceof HTMLSelectElement) {
     router.push(target.value);

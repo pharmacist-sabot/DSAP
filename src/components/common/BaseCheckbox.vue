@@ -9,14 +9,12 @@ const props = defineProps<{
   disabled?: boolean;
 }>();
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void;
-}>();
+const emit = defineEmits<(e: 'update:modelValue', value: boolean) => void>();
 
 const inputId = computed(() => `checkbox-${props.id}`);
 
 function handleChange(event: Event) {
-  const target = event.target;
+  const { target } = event;
 
   if (target instanceof HTMLInputElement) {
     emit('update:modelValue', target.checked);
@@ -56,6 +54,7 @@ function handleChange(event: Event) {
           stroke-width="3"
           stroke-linecap="round"
           stroke-linejoin="round"
+          aria-hidden="true"
         >
           <polyline points="20 6 9 17 4 12" />
         </svg>

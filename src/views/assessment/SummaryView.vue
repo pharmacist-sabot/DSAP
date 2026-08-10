@@ -37,8 +37,9 @@ const assessedStandards = computed(() =>
 );
 
 const averageLevel = computed(() => {
-  if (standards.value.length === 0)
+  if (standards.value.length === 0) {
     return 0;
+  }
 
   const totalLevel = standards.value.reduce((total, standard) => total + store.getStandardLevel(standard.id), 0);
   return (totalLevel / standards.value.length).toFixed(1);
@@ -70,7 +71,7 @@ const standardRows = computed(() =>
 );
 
 const dimensionRows = computed(() =>
-  (Object.entries(dimensionMeta) as Array<[keyof typeof dimensionMeta, (typeof dimensionMeta)[keyof typeof dimensionMeta]]>).map(([dimension, meta]) => {
+  (Object.entries(dimensionMeta) as [keyof typeof dimensionMeta, (typeof dimensionMeta)[keyof typeof dimensionMeta]][]).map(([dimension, meta]) => {
     const items = standardRows.value.filter(row => row.dimension === dimension);
     const average = items.length > 0
       ? (items.reduce((total, row) => total + row.level, 0) / items.length).toFixed(1)
@@ -95,14 +96,17 @@ const hospitalSummary = computed(() => [
 ]);
 
 function getLevelBadgeClasses(level: number) {
-  if (level >= 4)
+  if (level >= 4) {
     return 'bg-[var(--color-success-soft)] text-[var(--color-success)]';
+  }
 
-  if (level >= 2)
+  if (level >= 2) {
     return 'bg-[var(--color-warning-soft)] text-[#9a6700]';
+  }
 
-  if (level >= 1)
+  if (level >= 1) {
     return 'bg-[var(--color-info-soft)] text-[#084298]';
+  }
 
   return 'bg-[var(--color-cloud)] text-[var(--color-subtle)]';
 }

@@ -37,8 +37,9 @@ const checkedCriteriaCount = computed(() =>
 );
 
 const completionPercent = computed(() => {
-  if (!totalCriteriaCount.value)
+  if (!totalCriteriaCount.value) {
     return 0;
+  }
 
   return Math.round((checkedCriteriaCount.value / totalCriteriaCount.value) * 100);
 });
